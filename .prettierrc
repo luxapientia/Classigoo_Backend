@@ -1,0 +1,9 @@
+{
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "endofLine": "lf",
+  "eol-last": "off",
+  "multiline-ternary": "off",
+  "operator-linebreak": ["off"],
+  "proseWrap": "always"
+}
