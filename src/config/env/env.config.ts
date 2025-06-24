@@ -27,5 +27,13 @@ export default registerAs('env', () => ({
       privateKey: process.env.AWS_CLOUDFRONT_PRIVATE_KEY,
       signedUrlExpiry: parseInt(process.env.AWS_CLOUDFRONT_SIGNED_URL_EXPIRY || '86400', 10),
     },
-  }
+  },
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY,
+    orgId: process.env.OPENAI_ORG_ID,
+    model: process.env.OPENAI_MODEL,
+    temperature: process.env.OPENAI_TEMPERATURE,
+    timeout: process.env.OPENAI_TIMEOUT,
+    maxRetries: process.env.OPENAI_MAX_RETRIES,
+  },
 }));

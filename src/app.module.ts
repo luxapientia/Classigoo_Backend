@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { AccountModule } from './modules/account/account.module';
 import { ClassroomModule } from './modules/classroom/classroom.module';
+import { AIBuddyModule } from './modules/aibuddy/aibuddy.module';
 import { SharedModule } from './shared/shared.module';
 
 @Module({
@@ -15,7 +16,7 @@ import { SharedModule } from './shared/shared.module';
       useFactory: (configService: ConfigService) => ({
         uri:
           configService.get<string>('database.uri') ??
-          'mongodb://localhost:27017/classigoo_nest_rest',
+          'mongodb://localhost:27017/classigoo',
       }),
       inject: [ConfigService],
     }),
@@ -23,6 +24,7 @@ import { SharedModule } from './shared/shared.module';
     AuthModule,
     ClassroomModule,
     AccountModule,
+    AIBuddyModule,
   ],
 })
 export class AppModule {}
