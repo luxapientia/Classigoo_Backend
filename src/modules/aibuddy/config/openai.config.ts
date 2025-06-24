@@ -13,6 +13,12 @@ export class OpenAIConfig {
       timeout: this.configService.get<number>('env.openai.timeout', 10) * 1000,
       maxRetries: this.configService.get<number>('env.openai.maxRetries', 2),
     });
+    console.log(this.configService.get<string>('env.openai.apiKey'));
+    console.log(this.configService.get<string>('env.openai.orgId'));
+    console.log(this.configService.get<number>('env.openai.timeout'));
+    console.log(this.configService.get<number>('env.openai.maxRetries'));
+    console.log(this.configService.get<string>('env.openai.model'));
+    console.log(this.configService.get<number>('env.openai.temperature'));
   }
 
   getOpenAI(): OpenAI {

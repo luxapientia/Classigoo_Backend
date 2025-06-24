@@ -23,6 +23,7 @@ import envConfig from './env/env.config';
         AWS_ACCESS_KEY_ID: Joi.string().required(),
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),
         AWS_S3_BUCKET_NAME: Joi.string().required(),
+        AWS_S3_STATIC_CDN_URL: Joi.string().required(),
         AWS_CLOUDFRONT_DOMAIN: Joi.string().required(),
         AWS_CLOUDFRONT_KEY_PAIR_ID: Joi.string().required(),
         AWS_CLOUDFRONT_PRIVATE_KEY: Joi.string().required(),

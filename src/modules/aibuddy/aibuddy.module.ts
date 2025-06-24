@@ -7,6 +7,7 @@ import { MathAI, MathSchema } from './schemas/math.schema';
 import { Physics, PhysicsSchema } from './schemas/physics.schema';
 import { Limit, LimitSchema } from './schemas/limit.schema';
 import { SharedModule } from '../../shared/shared.module';
+import { OpenAIConfig } from './config/openai.config';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { SharedModule } from '../../shared/shared.module';
     ]),
   ],
   controllers: [AIBuddyController],
-  providers: [AIBuddyService],
+  providers: [AIBuddyService, OpenAIConfig],
 })
 export class AIBuddyModule {} 

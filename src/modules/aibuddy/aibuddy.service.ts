@@ -112,7 +112,7 @@ Always pause to ask the user if they'd like to go deeper or try an example probl
     return message;
   }
 
-  private async checkAndUpdateLimit(userId: string): Promise<number> {
+  private async checkAndUpdateLimit(userId: string, isRequest: boolean = false): Promise<number> {
     const now = new Date();
     const startOfDay = new Date(now.setHours(0, 0, 0, 0));
 
@@ -126,11 +126,11 @@ Always pause to ask the user if they'd like to go deeper or try an example probl
       limit.last_reset_time = now;
     }
 
-    if (limit.request_count >= this.DAILY_LIMIT) {
+    if (limit.request_count >= this.DAILY_LIMIT && isRequest) {
       return 0;
     }
 
-    limit.request_count += 1;
+    limit.request_count += isRequest ? 1 : 0;
     limit.last_request_time = now;
     await limit.save();
 
@@ -142,7 +142,7 @@ Always pause to ask the user if they'd like to go deeper or try an example probl
       throw new BadRequestException('Prompt is required');
     }
 
-    const remainingLimit = await this.checkAndUpdateLimit(user.user_id);
+    const remainingLimit = await this.checkAndUpdateLimit(user.user_id, true);
     if (remainingLimit === 0) {
       throw new BadRequestException(`You have reached your daily limit of ${this.DAILY_LIMIT} requests. Please try again tomorrow.`);
     }
@@ -151,8 +151,10 @@ Always pause to ask the user if they'd like to go deeper or try an example probl
     let chat;
 
     if (chatDto.chat_id) {
+      console.log('chatDto.chat_id', chatDto.chat_id);
+      console.log('model', model);
       chat = await model.findById(chatDto.chat_id);
-      if (!chat || chat.user_id !== user.user_id) {
+      if (!chat || chat.user_id.toString() !== user.user_id) {
         throw new UnauthorizedException('Chat not found or unauthorized');
       }
     } else {
@@ -200,7 +202,7 @@ Always pause to ask the user if they'd like to go deeper or try an example probl
         .sort({ updated_at: -1 })
         .skip(skip)
         .limit(historyDto.limit)
-        .select('_id, chat_name, updated_at'),
+        .select('_id chat_name updated_at'),
       model.countDocuments({ user_id: user.user_id }),
     ]);
 
@@ -253,7 +255,7 @@ Always pause to ask the user if they'd like to go deeper or try an example probl
     const model = this.getModelByName(retrieveDto.model);
     const chat = await model.findById(retrieveDto.chat_id);
 
-    if (!chat || chat.user_id !== user.user_id) {
+    if (!chat || chat.user_id.toString() !== user.user_id) {
       throw new UnauthorizedException('Chat not found or unauthorized');
     }
 

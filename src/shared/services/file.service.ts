@@ -35,7 +35,6 @@ export class FileService {
     this.cloudfrontKeyPairId = this.configService.get<string>('env.aws.cloudfront.keyPairId') ?? '';
     this.cloudfrontPrivateKey = this.configService.get<string>('env.aws.cloudfront.privateKey') ?? '';
     this.signedUrlExpiry = this.configService.get<number>('env.aws.cloudfront.signedUrlExpiry', 86400); // 24 hours default
-    console.log(this. signedUrlExpiry)
   }
 
   async uploadFile(

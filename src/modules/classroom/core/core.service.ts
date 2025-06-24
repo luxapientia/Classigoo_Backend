@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 import { PubSubService } from '../../../shared/services/pubsub.service';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { JwtPayload } from '../../../common/decorators/user.decorator';
@@ -27,6 +28,7 @@ export class CoreService {
     @InjectModel(Exam.name) private examModel: Model<Exam>,
     @InjectModel(Assignment.name) private assignmentModel: Model<Assignment>,
     private pubSubService: PubSubService,
+    private configService: ConfigService,
   ) {}
 
   async createClassroom(
@@ -42,7 +44,7 @@ export class CoreService {
 
       // Generate random cover image number (1-10)
       const randomInt = Math.floor(Math.random() * (10 - 1 + 1)) + 1;
-      const coverImg = `${process.env.AWS_S3_STATIC_CDN_URL}/content/cover/${randomInt}.jpeg`;
+      const coverImg = `${this.configService.get('env.aws.s3.staticCdnUrl')}/content/cover/${randomInt}.jpeg`;
 
       // Create classroom
       const createdClassroom = await this.classroomModel.create({

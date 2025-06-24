@@ -20,6 +20,7 @@ export default registerAs('env', () => ({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     s3: {
       bucketName: process.env.AWS_S3_BUCKET_NAME,
+      staticCdnUrl: process.env.AWS_S3_STATIC_CDN_URL,
     },
     cloudfront: {
       domain: process.env.AWS_CLOUDFRONT_DOMAIN,
@@ -32,8 +33,8 @@ export default registerAs('env', () => ({
     apiKey: process.env.OPENAI_API_KEY,
     orgId: process.env.OPENAI_ORG_ID,
     model: process.env.OPENAI_MODEL,
-    temperature: process.env.OPENAI_TEMPERATURE,
-    timeout: process.env.OPENAI_TIMEOUT,
-    maxRetries: process.env.OPENAI_MAX_RETRIES,
+    temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.7'),
+    timeout: parseInt(process.env.OPENAI_TIMEOUT || '10', 10),
+    maxRetries: parseInt(process.env.OPENAI_MAX_RETRIES || '2', 10),
   },
 }));
