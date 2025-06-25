@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Note } from './schemas/note.schema';
 import { ClassroomNote } from './schemas/classroom-note.schema';
+import { Classroom } from '../classroom/core/schemas/classroom.schema';
+import { ClassroomAccess } from '../classroom/core/schemas/classroom-access.schema';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { JwtPayload } from '../../common/decorators/user.decorator';
@@ -13,6 +15,8 @@ export class NoteService {
   constructor(
     @InjectModel(Note.name) private noteModel: Model<Note>,
     @InjectModel(ClassroomNote.name) private classroomNoteModel: Model<ClassroomNote>,
+    @InjectModel(Classroom.name) private classroomModel: Model<Classroom>,
+    @InjectModel(ClassroomAccess.name) private classroomAccessModel: Model<ClassroomAccess>,
     private readonly pubSubService: PubSubService
   ) {}
 
@@ -301,6 +305,87 @@ export class NoteService {
         throw error;
       }
       throw new InternalServerErrorException('Failed to delete note');
+    }
+  }
+
+  async getClassroomNotes(classId: string, user: JwtPayload) {
+    try {
+      // check if user has access to the classroom
+      const classroom = await this.classroomModel.findById(classId);
+      if (!classroom) {
+        throw new NotFoundException('Classroom not found');
+      }
+      
+      const classroomAccess = await this.classroomAccessModel.findOne({
+        user_id: new Types.ObjectId(user.user_id),
+        class_id: new Types.ObjectId(classId),
+        status: 'accepted'
+      });
+      if (!classroomAccess) {
+        throw new UnauthorizedException('You do not have permission to view this classroom notes');
+      }
+
+      const notes = await this.noteModel.aggregate([
+        {
+          $lookup: {
+            from: 'classroom_notes',
+            localField: '_id',
+            foreignField: 'note_id',
+            as: 'classroom_note'
+          }
+        },
+        {
+          $unwind: {
+            path: '$classroom_note',
+            preserveNullAndEmptyArrays: true
+          },
+        },
+        {
+          $match: {
+            'classroom_note.class_id': new Types.ObjectId(classId),
+            'status': 'published'
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'owner_id',
+            foreignField: '_id',
+            as: 'owner_data'
+          }
+        },
+        {
+          $unwind: '$owner_data'
+        },
+        {
+          $project: {
+            _id: 0,
+            id: '$_id',
+            status: 1,
+            title: 1,
+            updated_at: 1,
+            owner_data: {
+              name: '$owner_data.name'
+            }
+          }
+        },
+        {
+          $sort: {
+            updated_at: -1
+          }
+        }
+      ]);
+
+      return {
+        status: 'success',
+        message: 'Classroom notes retrieved successfully',
+        data: notes
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to get classroom notes');
     }
   }
 } 

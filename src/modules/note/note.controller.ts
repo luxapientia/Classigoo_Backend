@@ -15,6 +15,14 @@ export class NoteController {
     return this.noteService.getNotes(userId, user);
   }
 
+  @Get('classroom/:classId')
+  async getClassroomNotes(
+    @Param('classId') classId: string,
+    @CurrentUser() user: JwtPayload
+  ) {
+    return this.noteService.getClassroomNotes(classId, user);
+  }
+
   @Get(':id')
   async getNoteById(
     @Param('id') id: string,
