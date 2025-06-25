@@ -11,10 +11,11 @@ import { HistoryDto, HistoryResponseDto } from './dto/history.dto';
 import { SearchDto, SearchResponseDto } from './dto/search.dto';
 import { RetrieveDto, RetrieveResponseDto } from './dto/retrieve.dto';
 import { JwtPayload } from '../../common/decorators/user.decorator';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AIBuddyService {
-  private readonly DAILY_LIMIT = 50;
+  private readonly DAILY_LIMIT: number;
   private readonly models: Record<string, Model<any>>;
   private readonly systemMessages: Record<string, string> = {
     chemistry: `
@@ -88,12 +89,14 @@ Always pause to ask the user if they'd like to go deeper or try an example probl
     @InjectModel(Physics.name) private physicsModel: Model<Physics>,
     @InjectModel(Limit.name) private limitModel: Model<Limit>,
     private openaiConfig: OpenAIConfig,
+    private configService: ConfigService,
   ) {
     this.models = {
       chemistry: this.chemistryModel,
       math: this.mathModel,
       physics: this.physicsModel,
     };
+    this.DAILY_LIMIT = this.configService.get('env.openai.dailyLimit') || 100;
   }
 
   private getModelByName(modelName: string): Model<any> {

@@ -34,6 +34,7 @@ import envConfig from './env/env.config';
         OPENAI_TEMPERATURE: Joi.number().required(),
         OPENAI_TIMEOUT: Joi.number().required(),
         OPENAI_MAX_RETRIES: Joi.number().required(),
+        BUDDY_DAILY_LIMIT: Joi.number().required(),
       }),
     }),
   ],

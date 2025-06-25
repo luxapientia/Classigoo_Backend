@@ -36,5 +36,6 @@ export default registerAs('env', () => ({
     temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.7'),
     timeout: parseInt(process.env.OPENAI_TIMEOUT || '10', 10),
     maxRetries: parseInt(process.env.OPENAI_MAX_RETRIES || '2', 10),
+    dailyLimit: parseInt(process.env.BUDDY_DAILY_LIMIT || '100', 10),
   },
 }));
