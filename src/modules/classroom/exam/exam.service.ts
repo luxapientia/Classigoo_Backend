@@ -15,6 +15,7 @@ import { DeleteFileDto } from './dto/delete-file.dto';
 import { User } from '../../../modules/auth/schemas/user.schema';
 import { PubSubService } from '../../../shared/services/pubsub.service';
 import { FileService } from '../../../shared/services/file.service';
+import { ExamGradeDto } from './dto/list-exam-grades.dto';
 
 @Injectable()
 export class ExamService {
@@ -336,6 +337,12 @@ export class ExamService {
       { new: true }
     );
 
+    // publish event
+    // await this.pubSubService.publish('exam.updated', {
+    //   cid: exam.class_id?.toString() || '',
+    //   eid: exam._id?.toString() || ''
+    // })
+
     if (!updatedSubmission) {
       throw new InternalServerErrorException('Failed to update submission markings');
     }
@@ -609,6 +616,78 @@ export class ExamService {
         throw error;
       }
       throw new InternalServerErrorException('Could not retrieve your exam submissions');
+    }
+  }
+
+  async listExamGrades(classId: string, user: JwtPayload): Promise<{ status: string; message: string; data: ExamGradeDto[] }> {
+    try {
+      // check user role
+      const access = await this.classroomAccessModel.findOne({
+        class_id: new Types.ObjectId(classId),
+        user_id: new Types.ObjectId(user.user_id),
+        status: 'accepted'
+      });
+      
+      if (!access) {
+        throw new UnauthorizedException('You do not have permission to view the exam grades');
+      }
+
+      // fetch the exam submissions
+      const submissions = await this.examModel.aggregate([
+        {
+          $match: {
+            class_id: new Types.ObjectId(classId)
+          }
+        },
+        {
+          $lookup: {
+            from: 'exam_submissions',
+            localField: '_id',
+            foreignField: 'exam_id',
+            as: 'submissions'
+          }
+        },
+        {
+          $unwind: '$submissions'
+        },
+        {
+          $match: {
+            'submissions.status': 'published'
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            id: '$submissions._id',
+            user_id: '$submissions.user_id',
+            exam_id: '$submissions.exam_id',
+            status: '$submissions.status',
+            markings: '$submissions.markings',
+            created_at: '$submissions.created_at',
+            updated_at: '$submissions.updated_at',
+            exam: {
+              id: '$_id',
+              title: '$title',
+              status: '$status',
+              duration: '$duration',
+              questions: '$questions',
+              created_at: '$created_at',
+              start_once: '$start_once'
+            }
+          }
+        }
+      ])
+
+      return {
+        status: 'success',
+        message: 'Exam grades retrieved successfully',
+        data: submissions
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Could not retrieve exam grades');
     }
   }
 } 

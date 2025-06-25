@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AccountModule } from './modules/account/account.module';
 import { ClassroomModule } from './modules/classroom/classroom.module';
 import { AIBuddyModule } from './modules/aibuddy/aibuddy.module';
+import { NoteModule } from './modules/note/note.module';
 import { SharedModule } from './shared/shared.module';
 
 @Module({
@@ -25,6 +26,7 @@ import { SharedModule } from './shared/shared.module';
     ClassroomModule,
     AccountModule,
     AIBuddyModule,
+    NoteModule
   ],
 })
 export class AppModule {}

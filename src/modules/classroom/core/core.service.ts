@@ -521,4 +521,54 @@ export class CoreService {
       throw new InternalServerErrorException('Could not get classroom access information');
     }
   }
+
+  async getClassroomNames(uid: string, user: JwtPayload): Promise<any> {
+    try {
+      if (user.user_id !== uid) {
+        throw new UnauthorizedException('You can only view your own classroom names');
+      }
+
+      const results = await this.classroomAccessModel.aggregate([
+        {
+          $match: {
+            user_id: new Types.ObjectId(uid),
+            status: 'accepted',
+            role: { $in: ['owner', 'teacher'] }
+          }
+        },
+        {
+          $lookup: {
+            from: 'classrooms',
+            localField: 'class_id',
+            foreignField: '_id',
+            as: 'classroom'
+          }
+        },
+        {
+          $unwind: '$classroom'
+        },
+        {
+          $project: {
+            _id: 0,
+            id: '$_id',
+            classroom: {
+              id: '$classroom._id',
+              name: '$classroom.name'
+            }
+          }
+        }
+      ]);
+
+      return {
+        status: 'success',
+        message: 'Classroom names retrieved successfully',
+        data: results
+      }
+    } catch (error) {
+      if (error instanceof UnauthorizedException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Could not get classroom names');
+    }
+  }
 } 

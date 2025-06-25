@@ -83,4 +83,13 @@ export class CoreController {
   ) {
     return this.coreService.getClassroomAccess({ cid, uid }, user);
   }
+
+  // get classroom names
+  @Get('names/:uid')
+  async getClassroomNames(
+    @Param('uid') uid: string,
+    @CurrentUser() user: JwtPayload
+  ): Promise<any> {
+    return this.coreService.getClassroomNames(uid, user);
+  }
 } 

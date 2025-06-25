@@ -10,6 +10,7 @@ import { UpdateExamSubmissionMarkingsDto } from './dto/update-exam-submission-ma
 import { FileInterceptor } from '../../../shared/interceptors/file.interceptor';
 import { RequestWithFiles } from '../common/interfaces/response.interface';
 import { DeleteFileDto } from './dto/delete-file.dto';
+import { ExamGradeDto } from './dto/list-exam-grades.dto';
 
 @Controller('v1/classroom/exam')
 @UseGuards(UserGuard)
@@ -135,5 +136,13 @@ export class ExamController {
     @CurrentUser() user: JwtPayload
   ): Promise<{ status: string; message: string; data: any[] }> {
     return this.examService.getMySubmissions(examId, userId, user);
+  }
+
+  @Get('grades/:classId')
+  async listExamGrades(
+    @Param('classId') classId: string,
+    @CurrentUser() user: JwtPayload
+  ): Promise<{ status: string; message: string; data: ExamGradeDto[] }> {
+    return this.examService.listExamGrades(classId, user);
   }
 } 
