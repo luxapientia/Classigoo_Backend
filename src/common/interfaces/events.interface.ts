@@ -20,4 +20,5 @@ export enum EventTypes {
   CLASSROOM_MEMBER_UPDATED = 'classroom.member.updated',
   EXAM_UPDATED = 'exam.updated',
   POST_UPDATED = 'post.updated',
+  SCHEDULE_UPDATED = 'schedule.updated'
 } 
