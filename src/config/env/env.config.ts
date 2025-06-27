@@ -3,6 +3,7 @@ import { registerAs } from '@nestjs/config';
 export default registerAs('env', () => ({
   node_env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '8000', 10),
+  frontendUrl: process.env.FRONTEND_URL,
   jwt: {
     privateKey: process.env.JWT_PRIVATE_KEY,
     publicKey: process.env.JWT_PUBLIC_KEY,
@@ -37,5 +38,12 @@ export default registerAs('env', () => ({
     timeout: parseInt(process.env.OPENAI_TIMEOUT || '10', 10),
     maxRetries: parseInt(process.env.OPENAI_MAX_RETRIES || '2', 10),
     dailyLimit: parseInt(process.env.BUDDY_DAILY_LIMIT || '100', 10),
+  },
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY,
+    publicKey: process.env.STRIPE_PUBLIC_KEY,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+    monthlySubscriptionPriceId: process.env.STRIPE_MONTHLY_SUBSCRIPTION_PRICE_ID,
+    yearlySubscriptionPriceId: process.env.STRIPE_YEARLY_SUBSCRIPTION_PRICE_ID,
   },
 }));
